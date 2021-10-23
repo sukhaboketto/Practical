@@ -1,7 +1,66 @@
 https://www.aspsnippets.com/Articles/Implement-jQuery-AutoComplete-TextBox-from-database-using-AJAX-PageMethods-in-ASPNet.aspx
+----Appstart Routeconfig
+ public static class RouteConfig
+    {
+        public static void RegisterRoutes(RouteCollection routes)
+        {
+            var settings = new FriendlyUrlSettings();
+            settings.AutoRedirectMode = RedirectMode.Off; /* RedirectMode.Permanent;*/
+            routes.EnableFriendlyUrls(settings);
+        }
+    }
 
-
+----web config
   <connectionStrings>
-    <add name="constr" connectionString="Data Source=localhost;Initial Catalog=NewDine;Persist Security Info=True;User ID=sa;Password=SA@1234."
+    <add name="constr" connectionString="Data Source=.\SQL2019;Initial Catalog=OnTime;Persist Security Info=True;User ID=sa;Password=SA@1234."
       providerName="System.Data.SqlClient" />
   </connectionStrings>
+  <system.web>
+    <authentication mode="Forms">
+      <forms name="TaskListAuthCookie" loginUrl="login.aspx" 	protection="All" 	timeout="1440" />
+    </authentication>
+    <authorization>
+      <allow users="?"/>
+    </authorization>
+
+
+
+---Sitemaster
+<head runat="server">
+   
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    ---Default.cs
+     [WebMethod]
+        public static string[] GetCustomers(string prefix)
+        {
+            List<string> customers = new List<string>();
+            using (SqlConnection conn = new SqlConnection())
+            {
+                conn.ConnectionString = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.CommandText = "select Emp_Name, Emp_Id from EmployeeDetailsView where Emp_Name like @SearchText + '%'";
+                    cmd.Parameters.AddWithValue("@SearchText", prefix);
+                    cmd.Connection = conn;
+                    conn.Open();
+                    using (SqlDataReader sdr = cmd.ExecuteReader())
+                    {
+                        while (sdr.Read())
+                        {
+                            customers.Add(string.Format("{0}-{1}", sdr["Emp_Name"], sdr["Emp_Id"]));
+                        }
+                    }
+                    conn.Close();
+                }
+            }
+            return customers.ToArray();
+        }
+
+        protected void Submit(object sender, EventArgs e)
+        {
+            string customerName = Request.Form[txtSearch.UniqueID];
+            string customerId = Request.Form[hfCustomerId.UniqueID];
+            ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Name: " + customerName + "\\nID: " + customerId + "');", true);
+        }
+    
