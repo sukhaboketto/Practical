@@ -2,6 +2,6 @@ https://www.aspsnippets.com/Articles/Implement-jQuery-AutoComplete-TextBox-from-
 
 
   <connectionStrings>
-    <add name="CRMConnection" connectionString="Data Source=localhost;Initial Catalog=NewDine;Persist Security Info=True;User ID=sa;Password=SA@1234."
+    <add name="constr" connectionString="Data Source=localhost;Initial Catalog=NewDine;Persist Security Info=True;User ID=sa;Password=SA@1234."
       providerName="System.Data.SqlClient" />
   </connectionStrings>
